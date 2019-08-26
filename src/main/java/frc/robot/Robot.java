@@ -47,31 +47,14 @@ package frc.robot;
 
 // Classes required for *driving*
 import edu.wpi.first.wpilibj.TimedRobot;
-	/* TimedRobot is the 'skeleton' for the robot code.
+
+import org.longmetal.DriveTrain;
+
+/* TimedRobot is the 'skeleton' for the robot code.
 	 * This runs certain code based on the time in the match. */
 import edu.wpi.first.wpilibj.Joystick;
 	/* Joystick allows us to get input from the drivers.
 	 * Joystick can interact with gamepads, as well. */
-
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
-	// Allows multiple speed controllers to be grouped together
-	// (see lines 155, 162, 165)
-
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-	// Allows for controlling drive trains such as
-	// KOP, tank drive, or West Coast.
-
-// Spark MAXs are used for drive motors, so import the classes for those.
-import com.revrobotics.CANSparkMax;
-	// The main class to control Spark MAXs over CAN.
-import com.revrobotics.CANSparkMax.IdleMode;
-	// Allows us to define whether the motors brake (bad)
-	// or coast when the speed is set to 0.
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-	// This is an important class that tells the Spark MAXs
-	// whether to try to drive the motors as brushed
-	// or brushless (there's a big difference).
-
 
 
 public class Robot extends TimedRobot {
@@ -90,12 +73,11 @@ public class Robot extends TimedRobot {
 
 	// These declarations create the objects required throughout the rest of the program but don't 
 
-	// Create objects necessary to drive the robot
-	private DifferentialDrive driveTrain;
-
 	// Declare controllers
 	private Joystick driveStickLeft;
 	private Joystick driveStickRight;
+
+	private DriveTrain driveTrain;
 
 
 
@@ -111,11 +93,15 @@ public class Robot extends TimedRobot {
 	/* The maximum speed for the robot:
 	 * The value sent to the speed controllers is multiplied by this, therefore limiting it */
 
-	final String kCOMMIT = "null";
+	final String kCOMMIT = "54f6bc8";
 	/* The current commit this code is on.
 	 * Find on GitHub (top of repo>Latest commit)
 	 *   or GitHub Desktop (History>(top commit)>-o-)
 	 * [IMPORTANT]: UPDATE AFTER EVERY COMMIT
+	 */
+	final String kBRANCH = "objectify";
+	/* The current branch this code is on.
+	 * [IMPORTANT]: UPDATE AFTER EVERY BRANCH/MERGE
 	 */
 
 
@@ -135,34 +121,6 @@ public class Robot extends TimedRobot {
 		 * [vc] Hover over the method name to learn more about it */
 
 		System.out.println("Commit " + kCOMMIT + " or later");
-
-
-
-		/*  Drive Train     */
-		/*  8888b.  888888  */
-		/*   8I  Yb   88    */
-		/*   8I  dY   88    */
-		/*  8888Y"    88    */
-		/*                  */
-
-		// Create objects and/or assign values for the drivetrain
-
-		// Left Motors
-		CANSparkMax m_rearLeft = new CANSparkMax(1, MotorType.kBrushless); //left front
-		m_rearLeft.setIdleMode(IdleMode.kCoast);
-		CANSparkMax m_frontLeft = new CANSparkMax(2, MotorType.kBrushless); //left back
-		m_frontLeft.setIdleMode(IdleMode.kCoast);
-		SpeedControllerGroup leftmotors = new SpeedControllerGroup(m_rearLeft, m_frontLeft);
-
-		// Right Motors
-		CANSparkMax m_rearRight = new CANSparkMax(3, MotorType.kBrushless); //right front
-		m_rearRight.setIdleMode(IdleMode.kCoast);
-		CANSparkMax m_frontRight = new CANSparkMax(4, MotorType.kBrushless); //right back
-		m_frontRight.setIdleMode(IdleMode.kCoast);
-		SpeedControllerGroup rightmotors = new SpeedControllerGroup(m_rearRight, m_frontRight);
-
-		// Full drivetrain
-		driveTrain = new DifferentialDrive(leftmotors, rightmotors);
 		
 
 
@@ -192,12 +150,6 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		// This method is run frequently (10ms?) during teleop.
 
-		double modifierX = ((0.7 * driveStickLeft.getThrottle() - 1.05) / 2);	// Allow modification of maximum speed to an extent
-		double modifierZ = (driveStickRight.getThrottle() - 1) * -0.25;			// Allow modification of maximum turning speed
-
-		double driveX = driveStickLeft.getY() * modifierX * kMAX_SPEED_MULT;	// Compute driving speed
-		double driveZ = driveStickRight.getZ() * modifierZ;						// Compute turning speed
-
-		driveTrain.curvatureDrive(driveX, driveZ, true);	// Drive
+		driveTrain.curve(driveStickLeft.getY(), driveStickLeft.getThrottle(), driveStickRight.getZ(), driveStickRight.getThrottle());
 	}
 }
