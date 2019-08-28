@@ -26,7 +26,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
     // whether to try to drive the motors as brushed
     // or brushless (there's a big difference).
 
-import org.longmetal.util.Vector;
+import org.longmetal.util.Dual;
     // A custom class that can contain two values ([vc] hover for more information)
 
 public class DriveTrain {
@@ -92,40 +92,88 @@ public class DriveTrain {
     }
 
     /**
-     * Drives the robot
+     * Drives the robot in Curvature mode with limits applied.
      * @param speedRaw The raw joystick value for speed
      * @param speedThrottleRaw The raw joystick value for speed throttle (changing max speed)
      * @param rotationRaw The raw joystick value for rotation
      * @param rotationThrottleRaw The raw joystick value for rotation throttle (changing max rotation rate)
-     * @return A vector that can be used to know the current speed/curvature of the robot
+     * @return A Dual that can be used to know the current speed/curvature of the robot
      */
-    public Vector curve(double speedRaw, double speedThrottleRaw, double rotationRaw, double rotationThrottleRaw) {
-        double modifierX = ((0.7 * speedThrottleRaw - 1.05) / 2);
+    public Dual curve(double speedRaw, double speedThrottleRaw, double rotationRaw, double rotationThrottleRaw) {
+        double modifierX = (0.7 * speedThrottleRaw - 1.05) / 2;
 		double modifierZ = (rotationThrottleRaw - 1) * -0.25;
 
 		double driveX = speedRaw * modifierX * kMAX_SPEED_MULT;
 		double driveZ = rotationRaw * modifierZ;
 
         driveTrain.curvatureDrive(driveX, driveZ, true);
-        return new Vector(driveX, driveZ);
+        return new Dual(driveX, driveZ);
     }
 
     /**
-     * THIS IS A DANGEROUS METHOD. IT DOES NOT APPLY ANY LIMITS.
-     * DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING
+     * Drives the robot in Curvature mode with no limits(!)
+     * THIS IS A DANGEROUS METHOD! IT DOES NOT APPLY ANY LIMITS!
+     * DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING!
      * @param speedRaw The raw speed to drive the robot at.
      * @param rotationRaw The raw curvature to drive at
      * @param secret A checksum to make sure you really want to do this
-     * @return A vector of the current speed/curvature of the robot. If it is (0, 0) and the inputs were not, the checksum failed
+     * @return A Dual of the current speed/curvature of the robot. If it is (0, 0) and the inputs were not, the checksum failed
+     * @throws IllegalArgumentException Thrown when the checksum fails.
      */
     @Deprecated
-    public Vector curveRaw(double speedRaw, double rotationRaw, double secret) {
+    public Dual curveRaw(double speedRaw, double rotationRaw, double secret) throws IllegalArgumentException {
         if (secret == Math.pow(speedRaw, 2) * Math.pow(rotationRaw, 3)) {
             driveTrain.curvatureDrive(speedRaw, rotationRaw, true);
-            return new Vector(speedRaw, rotationRaw);
+            return new Dual(speedRaw, rotationRaw);
         } else {
             driveTrain.curvatureDrive(0, 0, true);
-            return new Vector(0, 0);
+            throw new IllegalArgumentException("The checksum did not pass.");
+        }
+    }
+
+    /**
+     * Drives the robot in Tank mode with limits applied.
+     * @param leftRaw The raw joystick value for the left motors
+     * @param rightRaw The raw joystick value for the right motors
+     * @param speedThrottleRaw The raw joystick value for speed throttle
+     * @param triggers A boolean array of the values of the two joystick triggers (if a trigger is pressed, both sides drive at the speed of that joystick). Should be formatted {leftTrigger, rightTrigger}. MUST HAVE LENGTH OF TWO!
+     * @return A Dual of the current values of the speeds actually applied to the drive train
+     * @throws IllegalArgumentException Thrown if `triggers` does not have a length of two.
+     */
+    public Dual tank(double leftRaw, double rightRaw, double speedThrottleRaw, boolean[] triggers) throws IllegalArgumentException {
+        if (triggers.length == 2) {
+            double modifier = (0.7 * speedThrottleRaw - 1.05) / 2;
+            double left = leftRaw * modifier;
+            double right = rightRaw * modifier;
+            if (triggers[0]) {
+                right = left;
+            } else if (triggers[1]) {
+                left = right;
+            }
+            driveTrain.tankDrive(left, right);
+            return new Dual(Math.pow(left, 2), Math.pow(right, 2));
+        } else {
+            throw new IllegalArgumentException("The argument `triggers` is required to have length 2.");
+        }
+    }
+
+    /**
+     * Drives the robot in Tank mode with no limits(!)
+     * THIS IS A DANGEROUS METHOD! IT DOES NOT APPLY LIMITS!
+     * DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING!
+     * @param leftRaw The raw speed to drive the left side at
+     * @param rightRaw The raw speed to drive the right side at
+     * @param secret A checksum to make sure you really want to do this
+     * @return A Dual of the current values of the speeds actually applied to the drive train
+     * @throws IllegalArgumentException Thrown when the checksum fails.
+     */
+    @Deprecated
+    public Dual tankRaw(double leftRaw, double rightRaw, double secret) throws IllegalArgumentException{
+        if (secret == Math.pow(leftRaw, 2) * Math.pow(rightRaw, 2)) {
+            driveTrain.tankDrive(leftRaw, rightRaw, false);
+            return new Dual(leftRaw, rightRaw);
+        } else {
+            throw new IllegalArgumentException("The checksum did not pass.");
         }
     }
 }

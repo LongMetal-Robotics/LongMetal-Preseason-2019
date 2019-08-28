@@ -93,7 +93,7 @@ public class Robot extends TimedRobot {
 	/* The maximum speed for the robot:
 	 * The value sent to the speed controllers is multiplied by this, therefore limiting it */
 
-	final String kCOMMIT = "54f6bc8";
+	final String kCOMMIT = "b0bef3d";
 	/* The current commit this code is on.
 	 * Find on GitHub (top of repo>Latest commit)
 	 *   or GitHub Desktop (History>(top commit)>-o-)
