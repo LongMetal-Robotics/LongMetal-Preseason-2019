@@ -91,23 +91,25 @@ public class DriveTrain {
         driveTrain = new DifferentialDrive(leftMotors, rightMotors);
     }
 
+
+
     /**
      * Drives the robot in Curvature mode with limits applied.
      * @param speedRaw The raw joystick value for speed
      * @param speedThrottleRaw The raw joystick value for speed throttle (changing max speed)
-     * @param rotationRaw The raw joystick value for rotation
-     * @param rotationThrottleRaw The raw joystick value for rotation throttle (changing max rotation rate)
+     * @param curvatureRaw The raw joystick value for curvature
+     * @param curvatureThrottleRaw The raw joystick value for curvature throttle (changing max curvature rate)
      * @return A Dual that can be used to know the current speed/curvature of the robot
      */
-    public Dual curve(double speedRaw, double speedThrottleRaw, double rotationRaw, double rotationThrottleRaw) {
-        double modifierX = (0.7 * speedThrottleRaw - 1.05) / 2;
-		double modifierZ = (rotationThrottleRaw - 1) * -0.25;
+    public Dual curve(double speedRaw, double speedThrottleRaw, double curvatureRaw, double curvatureThrottleRaw) {
+        double modifierX = (0.7 * speedThrottleRaw - 1.05) / 2; // Create a speed modifier
+		double modifierZ = (curvatureThrottleRaw - 1) * -0.25;   // Create a curvature modifier
 
-		double driveX = speedRaw * modifierX * kMAX_SPEED_MULT;
-		double driveZ = rotationRaw * modifierZ;
+		double driveX = speedRaw * modifierX * kMAX_SPEED_MULT; // Calculate the speed
+		double driveZ = curvatureRaw * modifierZ;               // Calculate the curvature
 
-        driveTrain.curvatureDrive(driveX, driveZ, true);
-        return new Dual(driveX, driveZ);
+        driveTrain.curvatureDrive(driveX, driveZ, true);    // Drive
+        return new Dual(driveX, driveZ);                    // Return drive values
     }
 
     /**
@@ -115,19 +117,19 @@ public class DriveTrain {
      * THIS IS A DANGEROUS METHOD! IT DOES NOT APPLY ANY LIMITS!
      * DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING!
      * @param speedRaw The raw speed to drive the robot at.
-     * @param rotationRaw The raw curvature to drive at
+     * @param curvatureRaw The raw curvature to drive at
      * @param secret A checksum to make sure you really want to do this
      * @return A Dual of the current speed/curvature of the robot. If it is (0, 0) and the inputs were not, the checksum failed
      * @throws IllegalArgumentException Thrown when the checksum fails.
      */
     @Deprecated
-    public Dual curveRaw(double speedRaw, double rotationRaw, double secret) throws IllegalArgumentException {
-        if (secret == Math.pow(speedRaw, 2) * Math.pow(rotationRaw, 3)) {
-            driveTrain.curvatureDrive(speedRaw, rotationRaw, true);
-            return new Dual(speedRaw, rotationRaw);
-        } else {
-            driveTrain.curvatureDrive(0, 0, true);
-            throw new IllegalArgumentException("The checksum did not pass.");
+    public Dual curveRaw(double speedRaw, double curvatureRaw, double secret) throws IllegalArgumentException {
+        if (secret == Math.pow(speedRaw, 2) * Math.pow(curvatureRaw, 3)) {  // Validate checksum; checksum passed
+            driveTrain.curvatureDrive(speedRaw, curvatureRaw, true);        // Drive
+            return new Dual(speedRaw, curvatureRaw);                        // Return drive values
+        } else {    // Checksum failed
+            driveTrain.curvatureDrive(0, 0, true);                          // Stop
+            throw new IllegalArgumentException("The checksum did not pass.");   // Fail
         }
     }
 
@@ -141,19 +143,19 @@ public class DriveTrain {
      * @throws IllegalArgumentException Thrown if `triggers` does not have a length of two.
      */
     public Dual tank(double leftRaw, double rightRaw, double speedThrottleRaw, boolean[] triggers) throws IllegalArgumentException {
-        if (triggers.length == 2) {
-            double modifier = (0.7 * speedThrottleRaw - 1.05) / 2;
-            double left = leftRaw * modifier;
-            double right = rightRaw * modifier;
-            if (triggers[0]) {
-                right = left;
-            } else if (triggers[1]) {
-                left = right;
+        if (triggers.length == 2) { // Validate input
+            double modifier = (0.7 * speedThrottleRaw - 1.05) / 2; // Calculate modifier
+            double left = leftRaw * modifier;   // Calculate left speed
+            double right = rightRaw * modifier; // Calculate right speed
+            if (triggers[0]) {  // Left trigger is pressed
+                right = left;   // Set right speed to left speed
+            } else if (triggers[1]) {   // Right trigger is pressed
+                left = right;           // Set left speed to right speed
             }
-            driveTrain.tankDrive(left, right);
-            return new Dual(Math.pow(left, 2), Math.pow(right, 2));
-        } else {
-            throw new IllegalArgumentException("The argument `triggers` is required to have length 2.");
+            driveTrain.tankDrive(left, right);  // Drive
+            return new Dual(Math.pow(left, 2), Math.pow(right, 2)); // Return drive values
+        } else {    // Input is illegal
+            throw new IllegalArgumentException("The argument `triggers` is required to have length 2.");    // Fail
         }
     }
 
@@ -168,12 +170,12 @@ public class DriveTrain {
      * @throws IllegalArgumentException Thrown when the checksum fails.
      */
     @Deprecated
-    public Dual tankRaw(double leftRaw, double rightRaw, double secret) throws IllegalArgumentException{
-        if (secret == Math.pow(leftRaw, 2) * Math.pow(rightRaw, 2)) {
-            driveTrain.tankDrive(leftRaw, rightRaw, false);
-            return new Dual(leftRaw, rightRaw);
-        } else {
-            throw new IllegalArgumentException("The checksum did not pass.");
+    public Dual tankRaw(double leftRaw, double rightRaw, double secret) throws IllegalArgumentException {
+        if (secret == Math.pow(leftRaw, 2) * Math.pow(rightRaw, 2)) {   // Validate checksum; checksum passed
+            driveTrain.tankDrive(leftRaw, rightRaw, false); // Drive
+            return new Dual(leftRaw, rightRaw);             // Return drive values
+        } else {    // Checksum failed
+            throw new IllegalArgumentException("The checksum did not pass.");   // Fail
         }
     }
 }

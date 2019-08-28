@@ -1,21 +1,21 @@
 /*-----------------------------------------------------------*/
 /* LongMetal Robotics 2019. MIT Commons Licence              */
-/* A clean slate to start writing code for Major Tom         */
-/*   as well as to teach the basics of Git and GitHub.       */
+/* A clean slate to start writing code for Major Tom         *
+ *   as well as to teach the basics of Git and GitHub.       */
 /*                                                           */
-/* ----------                                                */
-/*                                                           */
-/* Anything marked with [vc] means that this is a            */
-/*   Visual Studio Code feature (these features may be       */
-/*   available in other IDEs, but we develop in VSCode,      */
-/*   and these are available by default.                     */
-/*                                                           */
-/* ----------                                                */
-/*                                                           */
-/* This program is hard coded for curvature drive but it is  */ 
-/*   easy to change                                          */
-/*                                                           */
-/* ----------                                                */
+/* ----------                                                *
+ *                                                           *
+ * Anything marked with [vc] means that this is a            *
+ *   Visual Studio Code feature (these features may be       *
+ *   available in other IDEs, but we develop in VSCode,      *
+ *   and these are available by default.                     *
+ *                                                           *
+ * ----------                                                */
+/*                                                           *
+ * This program is hard coded for curvature drive but it is  *
+ *   easy to change                                          *
+ *                                                           *
+ * ----------                                                */
 /*                                                           */
 /* ## ALWAYS REMEMBER TO CHANGE kCOMMIT TO KEEP TRACK OF     */
 /* ## THE DEPLOYED CODE                                      */
@@ -93,7 +93,7 @@ public class Robot extends TimedRobot {
 	/* The maximum speed for the robot:
 	 * The value sent to the speed controllers is multiplied by this, therefore limiting it */
 
-	final String kCOMMIT = "b0bef3d";
+	final String kCOMMIT = "7ffd973";
 	/* The current commit this code is on.
 	 * Find on GitHub (top of repo>Latest commit)
 	 *   or GitHub Desktop (History>(top commit)>-o-)
