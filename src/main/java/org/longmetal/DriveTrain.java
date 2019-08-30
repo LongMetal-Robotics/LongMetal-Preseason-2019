@@ -101,7 +101,7 @@ public class DriveTrain {
      * @param curvatureThrottleRaw The raw joystick value for curvature throttle (changing max curvature rate)
      * @return A Dual that can be used to know the current speed/curvature of the robot
      */
-    public Dual curve(double speedRaw, double speedThrottleRaw, double curvatureRaw, double curvatureThrottleRaw) {
+    public Dual<Double> curve(double speedRaw, double speedThrottleRaw, double curvatureRaw, double curvatureThrottleRaw) {
         double modifierX = (0.7 * speedThrottleRaw - 1.05) / 2; // Create a speed modifier
 		double modifierZ = (curvatureThrottleRaw - 1) * -0.25;   // Create a curvature modifier
 
@@ -109,7 +109,7 @@ public class DriveTrain {
 		double driveZ = curvatureRaw * modifierZ;               // Calculate the curvature
 
         driveTrain.curvatureDrive(driveX, driveZ, true);    // Drive
-        return new Dual(driveX, driveZ);                    // Return drive values
+        return new Dual<Double>(driveX, driveZ);                    // Return drive values
     }
 
     /**
@@ -123,10 +123,10 @@ public class DriveTrain {
      * @throws IllegalArgumentException Thrown when the checksum fails.
      */
     @Deprecated
-    public Dual curveRaw(double speedRaw, double curvatureRaw, double secret) throws IllegalArgumentException {
+    public Dual<Double> curveRaw(double speedRaw, double curvatureRaw, double secret) throws IllegalArgumentException {
         if (secret == Math.pow(speedRaw, 2) * Math.pow(curvatureRaw, 3)) {  // Validate checksum; checksum passed
             driveTrain.curvatureDrive(speedRaw, curvatureRaw, true);        // Drive
-            return new Dual(speedRaw, curvatureRaw);                        // Return drive values
+            return new Dual<Double>(speedRaw, curvatureRaw);                        // Return drive values
         } else {    // Checksum failed
             driveTrain.curvatureDrive(0, 0, true);                          // Stop
             throw new IllegalArgumentException("The checksum did not pass.");   // Fail
@@ -142,7 +142,7 @@ public class DriveTrain {
      * @return A Dual of the current values of the speeds actually applied to the drive train
      * @throws IllegalArgumentException Thrown if `triggers` does not have a length of two.
      */
-    public Dual tank(double leftRaw, double rightRaw, double speedThrottleRaw, boolean[] triggers) throws IllegalArgumentException {
+    public Dual<Double> tank(double leftRaw, double rightRaw, double speedThrottleRaw, boolean[] triggers) throws IllegalArgumentException {
         if (triggers.length == 2) { // Validate input
             double modifier = (0.7 * speedThrottleRaw - 1.05) / 2; // Calculate modifier
             double left = leftRaw * modifier;   // Calculate left speed
@@ -153,7 +153,7 @@ public class DriveTrain {
                 left = right;           // Set left speed to right speed
             }
             driveTrain.tankDrive(left, right);  // Drive
-            return new Dual(Math.pow(left, 2), Math.pow(right, 2)); // Return drive values
+            return new Dual<Double>(Math.pow(left, 2), Math.pow(right, 2)); // Return drive values
         } else {    // Input is illegal
             throw new IllegalArgumentException("The argument `triggers` is required to have length 2.");    // Fail
         }
@@ -170,10 +170,10 @@ public class DriveTrain {
      * @throws IllegalArgumentException Thrown when the checksum fails.
      */
     @Deprecated
-    public Dual tankRaw(double leftRaw, double rightRaw, double secret) throws IllegalArgumentException {
+    public Dual<Double> tankRaw(double leftRaw, double rightRaw, double secret) throws IllegalArgumentException {
         if (secret == Math.pow(leftRaw, 2) * Math.pow(rightRaw, 2)) {   // Validate checksum; checksum passed
             driveTrain.tankDrive(leftRaw, rightRaw, false); // Drive
-            return new Dual(leftRaw, rightRaw);             // Return drive values
+            return new Dual<Double>(leftRaw, rightRaw);             // Return drive values
         } else {    // Checksum failed
             throw new IllegalArgumentException("The checksum did not pass.");   // Fail
         }

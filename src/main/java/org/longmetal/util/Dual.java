@@ -3,16 +3,16 @@ package org.longmetal.util;
 /**
  * A simple class for grouping two values together into an object
  */
-public class Dual {
-    private double a;
-    private double b;
+public class Dual<Type> {
+    private Type a;
+    private Type b;
 
     /**
      * Constructor
      * @param a 
      * @param b
      */
-    public Dual(double a, double b) {
+    public Dual(Type a, Type b) {
         this.a = a;
         this.b = b;
     }
@@ -21,7 +21,7 @@ public class Dual {
      * Getter for a
      * @return the value of a
      */
-    public double geta() {
+    public Type geta() {
         return a;
     }
 
@@ -29,7 +29,7 @@ public class Dual {
      * Getter for b
      * @return the value of b
      */
-    public double getb() {
+    public Type getb() {
         return b;
     }
 
@@ -37,7 +37,7 @@ public class Dual {
      * Setter for a
      * @param a the value to store to a
      */
-    public void seta(double a) {
+    public void seta(Type a) {
         this.a = a;
     }
 
@@ -45,7 +45,7 @@ public class Dual {
      * Setter for b
      * @param b the value to store to b
      */
-    public void setb(double b) {
+    public void setb(Type b) {
         this.b = b;
     }
 }
