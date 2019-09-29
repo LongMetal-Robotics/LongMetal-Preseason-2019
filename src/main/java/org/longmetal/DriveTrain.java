@@ -29,6 +29,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import org.longmetal.util.Dual;
     // A custom class that can contain two values ([vc] hover for more information)
 
+import org.longmetal.Input;
+
 public class DriveTrain {
     /* The class to control the drive train. */
 
@@ -47,11 +49,11 @@ public class DriveTrain {
     // These objects are declared here because they may be used
     // elsewhere as this is a 'low level' class.
 
-    private CANSparkMax m_rearLeft,
+    protected CANSparkMax m_rearLeft,
         m_frontLeft,
         m_rearRight,
         m_frontRight;
-    private SpeedControllerGroup leftMotors,
+    protected SpeedControllerGroup leftMotors,
         rightMotors;
 
 
@@ -113,6 +115,17 @@ public class DriveTrain {
     }
 
     /**
+     * Drives the robot in Curvature mode with limits applied
+     * Takes an Input to simplify teleop code
+     * @param input Contains the DS Input
+     * @return A Dual that can be used to know the current speed/curvature of the robot
+     */
+
+    public Dual<Double> curve(Input input) {
+        return curve(input.getLeft(), input.getLeftThrottle(), input.getRightZ(), input.getRightThrottle());
+    }
+
+    /**
      * Drives the robot in Curvature mode with no limits(!)
      * THIS IS A DANGEROUS METHOD! IT DOES NOT APPLY ANY LIMITS!
      * DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING!
@@ -156,6 +169,25 @@ public class DriveTrain {
             return new Dual<Double>(Math.pow(left, 2), Math.pow(right, 2)); // Return drive values
         } else {    // Input is illegal
             throw new IllegalArgumentException("The argument `triggers` is required to have length 2.");    // Fail
+        }
+    }
+
+    /**
+     * Drives the robot in Tank mode with limits applied
+     * Takes an Input to simplify teleop code
+     * @param input Contains the DS Input
+     * @return A Dual of the current values of the speeds actually applied to the drive train
+     */
+    public Dual<Double> tank(Input input) {
+        boolean[] triggers = {input.getLeftTrigger(), input.getRightTrigger()};
+
+        if (!input.getQuinnDrive()) {
+            return tank(input.getLeft(), input.getRight(), input.getLeftThrottle(), triggers);
+        } else {
+            boolean tmp = triggers[0];
+            triggers[0] = triggers[1];
+            triggers[1] = tmp;
+            return tank(input.getRight(), input.getLeft(), input.getRightThrottle(), triggers);
         }
     }
 

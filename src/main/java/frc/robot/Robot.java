@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------*/
-/* LongMetal Robotics 2019. MIT Commons Licence              */
+/* LongMetal Robotics 2019. MIT Commons License              */
 /* A clean slate to start writing code for Major Tom         *
  *   as well as to teach the basics of Git and GitHub.       */
 /*                                                           */
@@ -49,6 +49,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 import org.longmetal.DriveTrain;
+import org.longmetal.Input;
 
 /* TimedRobot is the 'skeleton' for the robot code.
 	 * This runs certain code based on the time in the match. */
@@ -74,8 +75,8 @@ public class Robot extends TimedRobot {
 	// These declarations create the objects required throughout the rest of the program but don't 
 
 	// Declare controllers
-	private Joystick driveStickLeft;
-	private Joystick driveStickRight;
+
+	private Input input;
 
 	private DriveTrain driveTrain;
 
@@ -131,10 +132,9 @@ public class Robot extends TimedRobot {
 		/*   YboodP   88   88  Yb 88ood8  */
 		/*                                */
 
-		driveStickLeft = new Joystick(0);
-		driveStickRight = new Joystick(1);
 		System.out.println("Left joystick should be in port 1.");	// Port 1 corresponds to 0 in the code
 
+		input = new Input(0, 1, 2);
 	}
 
 
@@ -150,6 +150,8 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		// This method is run frequently (10ms?) during teleop.
 
-		driveTrain.curve(driveStickLeft.getY(), driveStickLeft.getThrottle(), driveStickRight.getZ(), driveStickRight.getThrottle());
+		input.update();
+
+		driveTrain.curve(input);
 	}
 }
